@@ -1,5 +1,6 @@
 import * as React from "react";
 import ApiClient from "../services/ApiClient";
+import LastAttemptsComponent from "./LastAttemptsComponent"
 
 class ChallengeComponent extends React.Component {
     constructor(props) {
@@ -9,7 +10,8 @@ class ChallengeComponent extends React.Component {
             b: '',
             user: '',
             message:'',
-            guess:''
+            guess:'',
+            lastAttempts:[]
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmitResult = this.handleSubmitResult.bind(this);
@@ -17,6 +19,10 @@ class ChallengeComponent extends React.Component {
 
     //execute logic after the component is rendered for the first time
     componentDidMount() {
+        this.refreshChallenge();
+    }
+
+    refreshChallenge() {
         ApiClient.challenge().then(
             res => {
                 if(res.ok) {
@@ -32,7 +38,6 @@ class ChallengeComponent extends React.Component {
             }
         )
     }
-
     handleChange(event) {
         const name = event.target.name;
         this.setState({
@@ -42,8 +47,7 @@ class ChallengeComponent extends React.Component {
 
     handleSubmitResult(event) {
         event.preventDefault();
-        ApiClient.sendGuess(
-            this.state.user, this.state.a, this.state.b, this.state.guess)
+        ApiClient.sendGuess(this.state.user, this.state.a, this.state.b, this.state.guess)
             .then(res => {
                 if(res.ok) {
                     res.json().then(json => {
@@ -53,8 +57,25 @@ class ChallengeComponent extends React.Component {
                             this.updateMessage("Ops! Your guess " + json.resultAttempt + " is wrong, but keep playing!");
                         }
                     });
+                    this.updateLastAttempts(this.state.user);
+                    this.refreshChallenge();
                 } else {
-                    this.updateMessage("Error: server error or not available")
+                    this.updateMessage("Error: server error or not available");
+                }
+            })
+    }
+
+    updateLastAttempts(userAlias: string) {
+        ApiClient.getAttempts(userAlias)
+            .then(res => {
+                if(res.ok) {
+                    let attempts: Attempt[] = [];
+                    res.json().then(data => {
+                        data.forEach(item => {
+                            attempts.push(item);
+                        })
+                    });
+                    this.setState({lastAttempts: attempts});
                 }
             })
     }
@@ -67,8 +88,8 @@ class ChallengeComponent extends React.Component {
 
     render() {
         return (
-            <div>
-                <div>
+            <div className="display-column">
+                <div className="challenge">
                     <h3>Your new challenge</h3>
                     <h1>
                         {this.state.a} x {this.state.b}
@@ -93,6 +114,8 @@ class ChallengeComponent extends React.Component {
                     <input type="submit" value="Submit"/>
                 </form>
                 <h4>{this.state.message}</h4>
+                {this.state.lastAttempts.length > 0 &&
+                <LastAttemptsComponent lastAttempts={this.state.lastAttempts}/>}
             </div>
         );
     }

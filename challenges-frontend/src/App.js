@@ -4,11 +4,7 @@ import ChallengeComponent from './components/ChallengeComponent'
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <ChallengeComponent></ChallengeComponent>
-      </header>
-    </div>
+      <ChallengeComponent></ChallengeComponent>
   );
 }
 
