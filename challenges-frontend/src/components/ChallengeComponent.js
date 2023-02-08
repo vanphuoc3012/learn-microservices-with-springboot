@@ -1,31 +1,31 @@
 import * as React from "react";
-import ApiClient from "../services/ApiClient";
-import LastAttemptsComponent from "./LastAttemptsComponent"
+import ChallengesApiClient from "../services/ChallengeApiClient";
+import LastAttemptsComponent from './LastAttemptsComponent';
+import LeaderBoardComponent from './LeaderBoardComponent';
 
 class ChallengeComponent extends React.Component {
+
     constructor(props) {
         super(props);
         this.state = {
-            a: '',
-            b: '',
+            a: '', b: '',
             user: '',
-            message:'',
-            guess:'',
-            lastAttempts:[]
+            message: '',
+            guess: 0,
+            lastAttempts: []
         };
-        this.handleChange = this.handleChange.bind(this);
         this.handleSubmitResult = this.handleSubmitResult.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
-    //execute logic after the component is rendered for the first time
-    componentDidMount() {
+    componentDidMount(): void {
         this.refreshChallenge();
     }
 
     refreshChallenge() {
-        ApiClient.challenge().then(
+        ChallengesApiClient.challenge().then(
             res => {
-                if(res.ok) {
+                if (res.ok) {
                     res.json().then(json => {
                         this.setState({
                             a: json.factorA,
@@ -33,11 +33,12 @@ class ChallengeComponent extends React.Component {
                         });
                     });
                 } else {
-                    this.updateMessage("Error: server error or not available")
+                    this.updateMessage("Can't reach the server");
                 }
             }
-        )
+        );
     }
+
     handleChange(event) {
         const name = event.target.name;
         this.setState({
@@ -47,37 +48,25 @@ class ChallengeComponent extends React.Component {
 
     handleSubmitResult(event) {
         event.preventDefault();
-        ApiClient.sendGuess(this.state.user, this.state.a, this.state.b, this.state.guess)
+        ChallengesApiClient.sendGuess(this.state.user,
+            this.state.a, this.state.b,
+            this.state.guess)
             .then(res => {
-                if(res.ok) {
+                if (res.ok) {
                     res.json().then(json => {
-                        if(json.correct) {
-                            this.updateMessage("Congratulation! Your guess is correct!!!");
+                        if (json.correct) {
+                            this.updateMessage("Congratulations! Your guess is correct");
                         } else {
-                            this.updateMessage("Ops! Your guess " + json.resultAttempt + " is wrong, but keep playing!");
+                            this.updateMessage("Oops! Your guess " + json.resultAttempt +
+                                " is wrong, but keep playing!");
                         }
+                        this.updateLastAttempts(this.state.user);
+                        this.refreshChallenge();
                     });
-                    this.updateLastAttempts(this.state.user);
-                    this.refreshChallenge();
                 } else {
                     this.updateMessage("Error: server error or not available");
                 }
-            })
-    }
-
-    updateLastAttempts(userAlias: string) {
-        ApiClient.getAttempts(userAlias)
-            .then(res => {
-                if(res.ok) {
-                    let attempts: Attempt[] = [];
-                    res.json().then(data => {
-                        data.forEach(item => {
-                            attempts.push(item);
-                        })
-                    });
-                    this.setState({lastAttempts: attempts});
-                }
-            })
+            });
     }
 
     updateMessage(m: string) {
@@ -86,36 +75,55 @@ class ChallengeComponent extends React.Component {
         });
     }
 
+    updateLastAttempts(userAlias: string) {
+        ChallengesApiClient.getAttempts(userAlias).then(res => {
+            if (res.ok) {
+                let attempts: Attempt[] = [];
+                res.json().then(data => {
+                    data.forEach(item => {
+                        attempts.push(item);
+                    });
+                    this.setState({
+                        lastAttempts: attempts
+                    });
+                })
+            }
+        })
+    }
+
     render() {
         return (
             <div className="display-column">
-                <div className="challenge">
-                    <h3>Your new challenge</h3>
-                    <h1>
+                <div>
+                    <h3>Your new challenge is</h3>
+                    <div className="challenge">
                         {this.state.a} x {this.state.b}
-                    </h1>
+                    </div>
                 </div>
                 <form onSubmit={this.handleSubmitResult}>
                     <label>
-                        Your Alias:
+                        Your alias:
                         <input type="text" maxLength="12"
                                name="user"
                                value={this.state.user}
-                                onChange={this.handleChange}/>
+                               onChange={this.handleChange}/>
                     </label>
                     <br/>
                     <label>
                         Your guess:
-                        <input type="number" min={0}
-                        name="guess" value={this.state.guess}
-                        onChange={this.handleChange}/>
+                        <input type="number" min="0"
+                               name="guess"
+                               value={this.state.guess}
+                               onChange={this.handleChange}/>
                     </label>
                     <br/>
                     <input type="submit" value="Submit"/>
                 </form>
                 <h4>{this.state.message}</h4>
                 {this.state.lastAttempts.length > 0 &&
-                <LastAttemptsComponent lastAttempts={this.state.lastAttempts}/>}
+                    <LastAttemptsComponent lastAttempts={this.state.lastAttempts}/>
+                }
+                <LeaderBoardComponent/>
             </div>
         );
     }

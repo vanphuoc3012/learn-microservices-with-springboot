@@ -4,6 +4,7 @@ import com.microservices.multiplication.challenge.dto.ChallengeAttemptDTO;
 import com.microservices.multiplication.challenge.model.ChallengeAttempt;
 import com.microservices.multiplication.challenge.repository.ChallengeAttemptRepository;
 import com.microservices.multiplication.challenge.repository.UserRepository;
+import com.microservices.multiplication.challenge.serviceclients.GamificationServiceClient;
 import com.microservices.multiplication.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,8 @@ public class ChallengeServiceImpl implements ChallengeService{
     private final ChallengeAttemptRepository attemptRepository;
     private final UserRepository userRepository;
 
+    private final GamificationServiceClient gameClient;
+
     @Override
     public ChallengeAttempt verifyAttempt(ChallengeAttemptDTO attemptDTO) {
         //check if user already exists for that alias, otherwise create it
@@ -32,8 +35,10 @@ public class ChallengeServiceImpl implements ChallengeService{
         ChallengeAttempt checkedAttempt = new ChallengeAttempt(
             null, user, attemptDTO.getFactorA(), attemptDTO.getFactorB(), attemptDTO.getGuess(), isCorrect);
         //store the attempt
+        ChallengeAttempt saved = attemptRepository.save(checkedAttempt);
 
-        return attemptRepository.save(checkedAttempt);
+        gameClient.sendAttempt(saved);
+        return saved;
     }
 
     @Override
