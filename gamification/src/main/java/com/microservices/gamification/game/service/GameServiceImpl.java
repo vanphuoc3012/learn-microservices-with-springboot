@@ -1,6 +1,6 @@
 package com.microservices.gamification.game.service;
 
-import com.microservices.gamification.challenge.ChallengeSolveDTO;
+import com.microservices.gamification.challenge.ChallengeSolvedEvent;
 import com.microservices.gamification.game.badgeprocessor.BadgeProcessor;
 import com.microservices.gamification.game.domain.BadgeCard;
 import com.microservices.gamification.game.domain.BadgeType;
@@ -25,7 +25,7 @@ public class GameServiceImpl implements GameService{
     private final List<BadgeProcessor> badgeProcessorList;
 
     @Override
-    public GameResult newAttemptForUser(ChallengeSolveDTO challenge) {
+    public GameResult newAttemptForUser(ChallengeSolvedEvent challenge) {
         if(challenge.isCorrect()) {
             ScoreCard scoreCard = new ScoreCard(challenge.getUserId(), challenge.getAttemptId());
             scoreCardRepository.save(scoreCard);
@@ -41,7 +41,7 @@ public class GameServiceImpl implements GameService{
     }
 
     private List<BadgeCard> processBadge(
-            final ChallengeSolveDTO solvedChallenge) {
+            final ChallengeSolvedEvent solvedChallenge) {
         long userId = solvedChallenge.getUserId();
         Optional<Integer> optUserTotalScore = scoreCardRepository.getTotalScoreForUser(userId);
         if(optUserTotalScore.isEmpty()) return Collections.emptyList();

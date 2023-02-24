@@ -1,5 +1,6 @@
 package com.microservices.multiplication;
 
+import com.microservices.multiplication.challenge.ChallengeEventPub;
 import com.microservices.multiplication.challenge.dto.ChallengeAttemptDTO;
 import com.microservices.multiplication.challenge.model.ChallengeAttempt;
 import com.microservices.multiplication.challenge.repository.ChallengeAttemptRepository;
@@ -33,10 +34,12 @@ public class ChallengeServiceTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private ChallengeEventPub challengeEventPub;
 
     @BeforeEach
     public void setUp() {
-        challengeService = new ChallengeServiceImpl(attemptRepository, userRepository);
+        challengeService = new ChallengeServiceImpl(attemptRepository, userRepository, challengeEventPub);
 
     }
 
@@ -55,6 +58,7 @@ public class ChallengeServiceTest {
 
         Mockito.verify(userRepository).save(new User("user1"));
         Mockito.verify(attemptRepository).save(resultAttempt);
+        Mockito.verify(challengeEventPub);
     }
 
     @Test

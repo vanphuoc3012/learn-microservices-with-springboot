@@ -1,10 +1,10 @@
 package com.microservices.multiplication.challenge.service;
 
+import com.microservices.multiplication.challenge.ChallengeEventPub;
 import com.microservices.multiplication.challenge.dto.ChallengeAttemptDTO;
 import com.microservices.multiplication.challenge.model.ChallengeAttempt;
 import com.microservices.multiplication.challenge.repository.ChallengeAttemptRepository;
 import com.microservices.multiplication.challenge.repository.UserRepository;
-import com.microservices.multiplication.challenge.serviceclients.GamificationServiceClient;
 import com.microservices.multiplication.user.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +19,8 @@ public class ChallengeServiceImpl implements ChallengeService{
 
     private final ChallengeAttemptRepository attemptRepository;
     private final UserRepository userRepository;
+    private final ChallengeEventPub challengeEventPub;
 
-    private final GamificationServiceClient gameClient;
 
     @Override
     public ChallengeAttempt verifyAttempt(ChallengeAttemptDTO attemptDTO) {
@@ -37,7 +37,8 @@ public class ChallengeServiceImpl implements ChallengeService{
         //store the attempt
         ChallengeAttempt saved = attemptRepository.save(checkedAttempt);
 
-        gameClient.sendAttempt(saved);
+        //publishes an event to notify potentially interested subscribers
+        challengeEventPub.challengeSolved(saved);
         return saved;
     }
 
