@@ -20,6 +20,7 @@ public class UserController {
 
     @GetMapping("/{idList}")
     public ResponseEntity<?> getUserByIdList(@PathVariable(name = "idList") final List<Long> userIdList) {
+        log.info("Resolving user alias for user id: {}", userIdList);
         return ResponseEntity.ok(userRepository.findAllById(userIdList));
     }
 }

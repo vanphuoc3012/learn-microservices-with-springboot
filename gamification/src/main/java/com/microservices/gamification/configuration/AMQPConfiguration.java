@@ -1,4 +1,4 @@
-package com.microservices.gamification.game.configuration;
+package com.microservices.gamification.configuration;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;

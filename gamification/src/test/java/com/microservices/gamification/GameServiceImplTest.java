@@ -35,7 +35,7 @@ public class GameServiceImplTest {
         gameService =
                 new GameServiceImpl(scoreCardRepository,
                         badgeCardRepository,
-                        badgeProcessorList);
+                        List.of(badgeProcessor));
     }
 
     @Test
@@ -55,7 +55,6 @@ public class GameServiceImplTest {
                 .willReturn(List.of(new BadgeCard(userId, BadgeType.FIRST_WON)));
 
             // given data from service
-        BDDMockito.given(badgeProcessorList.)
         //when
 
         //then

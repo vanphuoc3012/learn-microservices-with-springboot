@@ -1,4 +1,4 @@
-package com.microservices.gamification.game.configuration;
+package com.microservices.gamification.configuration;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;

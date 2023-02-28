@@ -1,0 +1,45 @@
+server:
+  port: 8000
+
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: multiplication
+          uri: lb://multiplication/
+          predicates:
+            - Path=/challenges/**, /attempts, /attempts/**, /users/**
+        - id: gamification
+          uri: lb://gamification/
+          predicates:
+            - Path=/leaders
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "http://localhost:3000"
+            allowed-headers:
+              - "*"
+            allowed-methods:
+              - "GET"
+              - "POST"
+              - "OPTIONS"
+      default-filters:
+        - name: Retry
+          args:
+            retries: 4
+            method: GET, POST
+
+    consul:
+      enabled: true
+      discovery:
+        query-passing: true
+      ribbon:
+        enabled: false
+  application:
+    name: gateway
+
+
+logging:
+  level:
+    org.springframework.cloud.gateway.handler.predicate: trace
