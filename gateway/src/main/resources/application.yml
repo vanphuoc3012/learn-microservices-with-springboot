@@ -36,8 +36,17 @@ spring:
         query-passing: true
       ribbon:
         enabled: false
+      config:
+        data-key: application.yml
+        prefixes: config
+        format: yaml
+        default-context: defaults
   application:
     name: gateway
+  config:
+    import: "optional:consul:"
+
+
 
 
 logging:

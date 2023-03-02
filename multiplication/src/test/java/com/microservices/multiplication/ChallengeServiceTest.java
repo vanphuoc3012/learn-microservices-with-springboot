@@ -55,10 +55,9 @@ public class ChallengeServiceTest {
 
         //then
         then(resultAttempt.isCorrect()).isTrue();
-
         Mockito.verify(userRepository).save(new User("user1"));
         Mockito.verify(attemptRepository).save(resultAttempt);
-        Mockito.verify(challengeEventPub);
+        Mockito.verify(challengeEventPub).challengeSolved(resultAttempt);
     }
 
     @Test

@@ -23,9 +23,6 @@ public class LeaderBoardController {
     public List<LeaderBoardRow> getLeaderBoard() {
         log.info("Retrieving leaderboard");
         List<LeaderBoardRow> currentLeaderBoard = leaderBoardService.getCurrentLeaderBoard();
-        currentLeaderBoard.forEach(s ->
-                System.out.println(s.getUserId())
-        );
         return currentLeaderBoard;
     }
 }
